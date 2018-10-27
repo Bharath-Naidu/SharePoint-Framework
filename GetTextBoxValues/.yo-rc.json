@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "textbox-operactions",
+    "libraryId": "494b1683-0d53-4e28-bc0f-337dfd52cc04",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}

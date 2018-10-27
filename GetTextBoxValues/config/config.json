@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "second-app-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/secondApp/SecondAppWebPart.js",
+          "manifest": "./src/webparts/secondApp/SecondAppWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "SecondAppWebPartStrings": "lib/webparts/secondApp/loc/{locale}.js"
+  }
+}

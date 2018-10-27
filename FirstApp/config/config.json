@@ -1,0 +1,21 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "my-first-appliction-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/myFirstAppliction/MyFirstApplictionWebPart.js",
+          "manifest": "./src/webparts/myFirstAppliction/MyFirstApplictionWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": 
+  {
+    "jquery": "https://code.jquery.com/jquery-2.1.1.min.js"
+  },
+  "localizedResources": {
+    "MyFirstApplictionWebPartStrings": "lib/webparts/myFirstAppliction/loc/{locale}.js"
+  }
+}

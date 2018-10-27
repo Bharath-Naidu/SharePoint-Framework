@@ -1,0 +1,13 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "bootstrap-sp-fx-client-side-solution",
+    "id": "52d10a9b-b444-497c-854f-30aa1ff4c7d7",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true
+  },
+  "paths": {
+    "zippedPackage": "solution/bootstrap-sp-fx.sppkg"
+  }
+}

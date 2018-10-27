@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "bootstrap-sp-fx",
+    "libraryId": "52d10a9b-b444-497c-854f-30aa1ff4c7d7",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}
