@@ -17,6 +17,9 @@ require('bootstrap');
 var Buttonid;
 var CurrentLoginUser:string;
 var UserStatus:boolean;
+var TotalVotes=[0,0,0,0,0,0,0];
+var Places=[];
+import Chart from "chart.js";
 export interface IVoteMeWebPartProps {
   description: string;
 }
@@ -36,35 +39,12 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
           <button type="button" id="submit">Submit</button>
         </div>
     </div>
-
-    <div class="modal fade" id="myModal" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header" id="Header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="container-fluid">
-            <div class="row content">
-                <div class="col-sm-5 sidenav" id="Sidepart">
-
-                </div>
-            <div class="col-sm-7" id="Middle">
-          
-            </div>
-        </div>
-      </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
+    <div id="AlreadyUseVote"></div>
+    <br><br><br><br><br>
+    <div>
+    <canvas id="doughnut-chart" width="800" height="450"></canvas>
     </div>
-  </div>
-
+    
     `;
     
   var absurl = this.context.pageContext.web.absoluteUrl;
@@ -86,6 +66,8 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
               var button=$('#contents');
               $.each(data.d.results,function(val,value)
               {
+                Places[(value.ID)-1]=value.Title;
+                //alert(Places[(value.ID)-1]);
                  button.append(`<div class="btn-group mr-2" role="group" aria-label="First group">
                  <button type="button" class="btn btn-secondary" id="${value.ID}">${value.Title}</button></div>`);
               });
@@ -118,19 +100,82 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
       // });
     });
     //this.getCurrentUser();
+    this.GetVoterList()
+
+
+    $(document).ready(function(){
+
+      new Chart(document.getElementById("doughnut-chart"), {
+        type: 'doughnut',
+        data: {
+          labels: ["Africa", "Asia", "Europe", "Latin America", "North America"],
+          datasets: [
+            {
+              label: "Population (millions)",
+              backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+              data: [4555,5267,734,784,433]
+            }
+          ]
+        },
+        options: {
+          title: {
+            display: true,
+            text: 'Predicted world population (millions) in 2050'
+          }
+        }
+    });
     
-    
+
+
+
+    })
+
     this.UserIsUseTheVoterList();
     this.calltovote();
+
+
+
   }
-  
+  private GetVoterList()
+  {
+    var call = jQuery.ajax(
+      {
+          url: this.context.pageContext.web.absoluteUrl + `/_api/web/Lists/GetByTitle('AllVoters')/items?$select=Title,Vote`,
+          type: "GET",
+          dataType: "json",
+          headers: 
+          {
+              Accept: "application/json;odata=verbose"
+          }
+      });
+      //alert("After call in UserIsUseTheVoterList method");
+      call.done(function (data, textStatus, jqXHR)
+       {
+         //alert("User is Use the vote");
+         
+         var EnterCondiation:boolean=true;
+          // var button=$('#contents');
+          $.each(data.d.results,function(val,value)
+          {
+            TotalVotes[(value.Vote)-1]++; 
+            //alert(TotalVotes[(value.Vote)-1]);
+          });
+          
+      });
+      call.fail(function (jqXHR, textStatus, errorThrown) {
+        //alert("User not use the vote");
+          var response = JSON.parse(jqXHR.responseText);
+          var message = response ? response.error.message.value : textStatus;
+
+      });
+  }
     
     
 //---------------------------------------------------------------------------------------------------
 
   private calltovote()
   { 
-    alert("present status is:"+UserStatus);
+    //alert("present status is:"+UserStatus);
       document.getElementById("submit").addEventListener('click',()=>this.SaveVote());  
   }
   protected get dataVersion(): Version 
@@ -140,7 +185,7 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
   //-----------------------Find the user is use the vote or not------------------------
   private UserIsUseTheVoterList()
   {
-    alert("finding user is use the vote or not");
+    //alert("finding user is use the vote or not");
     
     var call = jQuery.ajax(
             {
@@ -152,7 +197,7 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
                     Accept: "application/json;odata=verbose"
                 }
             });
-            alert("After call in UserIsUseTheVoterList method");
+            //alert("After call in UserIsUseTheVoterList method");
             call.done(function (data, textStatus, jqXHR)
              {
                //alert("User is Use the vote");
@@ -163,28 +208,29 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
                 {
                   
                   var returnvalue=value.Title;
-                  alert("Title is "+returnvalue);
+                  //alert("Title is "+returnvalue);
                   if(returnvalue===CurrentLoginUser)
                   {
                     UserStatus=false;
                     EnterCondiation=false;
                   }
-                  alert("false");
-                  var POPUP=$('#Sidepart');
-                  POPUP.append(`<h3> You are already use your vote.</h3>`);
+                  //alert("false");
+                  //alert("Your are already voted")
                   $('#submit').attr("disabled", "disabled");
+                  var useVote=jQuery('#AlreadyUseVote');
+                  useVote.append("<h3> You are already use your vote</h3>");
                   $(".btn").removeClass('active').addClass('disabled');
                   $('#'+value.Vote).removeAttr('class');
-                  $('#'+value.Vote).addClass('active btn btn-primary');
+                  $('#'+value.Vote).addClass('active btn btn-secondary');
                 });
                 if(EnterCondiation)
                 {
                   UserStatus=true;
-                  alert("true");
+                  //alert("true");
                 }
             });
             call.fail(function (jqXHR, textStatus, errorThrown) {
-              alert("User not use the vote");
+              //alert("User not use the vote");
                 var response = JSON.parse(jqXHR.responseText);
                 var message = response ? response.error.message.value : textStatus;
 
@@ -193,17 +239,17 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
   //---------------------------------------adding vote to list--------------------------------
   public SaveVote() 
   {
-    alert("SaveVote is called");
+    //alert("SaveVote is called");
     if(UserStatus)
     {
-            alert("coming is added a vote "+UserStatus);
+            //alert("coming is added a vote "+UserStatus);
           if (Environment.type === EnvironmentType.Local) {
             this.domElement.querySelector('#listdata').innerHTML = "Sorry this does not work in local workbench";
           } 
           else{
             
           var Userid=CurrentLoginUser;
-          alert("Location is : "+Buttonid);
+          //alert("Location is : "+Buttonid);
           const spOpts: ISPHttpClientOptions = {
             body: `{ Vote: '${Buttonid}', Title:  '${Userid}'}`
           };
@@ -218,11 +264,9 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
               });
 
               if (response.ok) {
-                alert("added");
+                //alert("added");
               
-              }else
-              alert("fail");
-              
+              }              
               return;
 
             })
@@ -230,80 +274,17 @@ export default class VoteMeWebPart extends BaseClientSideWebPart<IVoteMeWebPartP
               console.log(error);
               return;
             });
+            var useVote=jQuery('#AlreadyUseVote');
+            useVote.append("<h3> Your Vote is added </h3>");
+            $('#submit').attr("disabled", "disabled");
+
           }
     
   }else{
-    alert("not enter  "+ UserStatus);
+    //alert("not enter  "+ UserStatus);
   }
   
   }
-  //---------------------------------Getting Login User----------------------------------
-  private getCurrentUser()
-  {
-    alert("Read Userid");
-    var call = jQuery.ajax(
-      {
-          url: this.context.pageContext.web.absoluteUrl + `/_api/web/currentuser`,
-          type: "GET",
-          dataType: "json",
-          headers: 
-          {
-              Accept: "application/json;odata=verbose"
-          }
-      });
-      alert("after call the getCurrentUser");
-      call.done(function (data, textStatus, jqXHR) {
-        alert("User id successfully find");
-        CurrentLoginUser=data.d.Title;
-        alert(CurrentLoginUser);
-    });
-    call.fail(function (jqXHR, textStatus, errorThrown) {
-      alert("fail in find user id");
-        var response = JSON.parse(jqXHR.responseText);
-        var message = response ? response.error.message.value : textStatus;
-        alert("Call failed. Error: " + message);
-    });
-  }
-
-
-  //-----------------------------------getting places----------------------------
-  // private getListsInfo() 
-  // {
-  //   //URLPATH=this.context.pageContext.web.absoluteUrl; 
-  //   //alert("coming here");
-  //   if (Environment.type === EnvironmentType.Local)
-  //    {
-  //     var message=$('#dataHere');
-  //     message.append("Sorry this does not work in local workbench");
-  //     } else 
-  //     { 
-  //     var call = jQuery.ajax(
-  //       {
-  //           url: this.context.pageContext.web.absoluteUrl + `/_api/web/Lists/GetByTitle('ParticipantsBharath')/items?$select=Title,ID`,
-  //           type: "GET",
-  //           dataType: "json",
-  //           headers: 
-  //           {
-  //               Accept: "application/json;odata=verbose"
-  //           }
-  //       });
-  //       call.done(function (data, textStatus, jqXHR)
-  //        {
-  //           var button=$('#contents');
-  //           $.each(data.d.results,function(val,value)
-  //           {
-  //              button.append(`<div class="btn-group mr-2" role="group" aria-label="First group">
-  //              <button type="button" class="btn btn-secondary" id="${value.ID}">${value.Title}</button></div>`);
-  //           });
-  //       });
-  //       call.fail(function (jqXHR, textStatus, errorThrown) {
-  //           var response = JSON.parse(jqXHR.responseText);
-  //           var message = response ? response.error.message.value : textStatus;
-  //           alert("Call failed. Error: " + message);
-  //       });
-    
-  //   }
-  // }
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     return {
       pages: [
