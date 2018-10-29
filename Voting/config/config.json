@@ -22,7 +22,6 @@
         "globalDependencies": ["jquery"]
         }
         
-        
   },
   "localizedResources": {
     "VoteMeWebPartStrings": "lib/webparts/voteMe/loc/{locale}.js"
