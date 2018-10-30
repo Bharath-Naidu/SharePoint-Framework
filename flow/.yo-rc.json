@@ -1,0 +1,11 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "isCreatingSolution": true,
+    "environment": "spo",
+    "version": "1.6.0",
+    "libraryName": "understand-flow",
+    "libraryId": "78008d42-10d4-438a-a94c-8d46db651521",
+    "packageManager": "npm",
+    "componentType": "webpart"
+  }
+}
